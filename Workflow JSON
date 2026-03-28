@@ -1,0 +1,646 @@
+{
+  "name": "AI outreach bot",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "44b8e4be-7ccc-463b-adbe-60b3e1ff8471",
+      "name": "Webhook",
+      "webhookId": "8a284086-1352-41de-bc0c-703351db0959"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "84b99f61-6f5e-4382-bbfe-895ebb33e1a4",
+              "name": "body.username",
+              "value": "={{ $json.body.username }}",
+              "type": "string"
+            },
+            {
+              "id": "d12dc2f7-9545-435a-924f-7eca58bb19b1",
+              "name": "body.bio",
+              "value": "={{ $json.body.bio }}",
+              "type": "string"
+            },
+            {
+              "id": "8b515ce2-c23c-4827-8e82-c22134c35a56",
+              "name": "body.followers",
+              "value": "={{ $json.body.followers }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "78026e11-ab3d-432e-b7ed-080774f18d87",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "757bfcdc-502f-4921-a26e-6cf3376c8912",
+              "leftValue": "={{ $json.body.followers }}",
+              "rightValue": 500,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "ed6a93d7-165e-4420-931e-818da1d7d48d",
+              "leftValue": "={{ $json.body.bio }}",
+              "rightValue": "AI",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "f91afb0d-3c7f-4220-ba2a-eb1cdbeabea8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI assistant that generates personalized outreach messages.\n\nCreate a short, friendly outreach message for the following user:\nUsername:{{ $json.body.username }} \nBio:{{ $json.body.bio }} \n\nRules:\n- Keep the message under 2 lines\n- Make it friendly and professional\n- Personalize based on the bio\n\nIMPORTANT:\nReturn ONLY valid JSON. Do not include any extra text.\n\nFormat:\n{\n  \"message\": \"your message here\",\n  \"tone\": \"friendly\"\n}\n\n\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        672,
+        -304
+      ],
+      "id": "d9be9a14-f49b-43a4-907b-7f363938d077",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -144
+      ],
+      "id": "2489632d-12a8-48fa-9310-b1c114c3a184",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "wzxcAn484S8IV8TG",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: JSON.parse($input.first().json.output)\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        992,
+        -320
+      ],
+      "id": "b8eb537f-3199-41cf-8d2e-33c4b25aaa79",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "634803d6-181c-48e5-a16e-68be2010772b",
+              "name": "message",
+              "value": "={{ $json.message }}",
+              "type": "string"
+            },
+            {
+              "id": "8f030a0a-b0f1-4c67-a193-b743ccc05ba5",
+              "name": "tone",
+              "value": "={{ $json.tone }}",
+              "type": "string"
+            },
+            {
+              "id": "c738d86e-226e-4ecb-b415-8678a286e868",
+              "name": "Status",
+              "value": "Accepted",
+              "type": "string"
+            },
+            {
+              "id": "00cd37eb-80bd-4c40-8f9b-9420d825def1",
+              "name": "Reason",
+              "value": "Valid lead",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        -320
+      ],
+      "id": "05af28b3-2ae2-4fc9-9852-ce31a21783eb",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"status\": \"success\",\n  \"message\": \"Lead processed successfully\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1616,
+        -320
+      ],
+      "id": "3b096e43-97d9-40b3-9f34-07913503e94b",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b200a28f-0f92-41dc-94ab-149603ae3f7c",
+              "name": "Username",
+              "value": "={{ $('Edit Fields').item.json.body.username }}",
+              "type": "string"
+            },
+            {
+              "id": "094c0786-5b9e-422a-bac8-16e2123c9c54",
+              "name": "Bio",
+              "value": "={{ $('Edit Fields').item.json.body.bio }}",
+              "type": "string"
+            },
+            {
+              "id": "5930b834-bab8-462f-8f7b-386b85726772",
+              "name": "Followers",
+              "value": "={{ $('Edit Fields').item.json.body.followers }}",
+              "type": "string"
+            },
+            {
+              "id": "81267268-4bdf-45c4-8b20-ac32c16929c0",
+              "name": "Status",
+              "value": "Rejected",
+              "type": "string"
+            },
+            {
+              "id": "70beef77-7d25-47b9-b4f2-547de7e24d4c",
+              "name": "Reason",
+              "value": "low_followers",
+              "type": "string"
+            },
+            {
+              "id": "11602464-43b7-4452-91c8-2d96c23460ec",
+              "name": "AI_message",
+              "value": "Not generated",
+              "type": "string"
+            },
+            {
+              "id": "44d87206-b102-4b1a-9a2e-221e583d66d8",
+              "name": "Time",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        624,
+        96
+      ],
+      "id": "d0e31bf3-055a-40cf-86d7-debf4e0c7311",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1i2MFH_Oga8P4VvS92Ir1smw7_FsQsFf5chguE0yEFxE",
+          "mode": "list",
+          "cachedResultName": "AI outreach data ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i2MFH_Oga8P4VvS92Ir1smw7_FsQsFf5chguE0yEFxE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1i2MFH_Oga8P4VvS92Ir1smw7_FsQsFf5chguE0yEFxE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Username": "={{ $('If').item.json.body.username }}",
+            "Bio": "={{ $('If').item.json.body.bio }}",
+            "Followers": "={{ $('If').item.json.body.followers }}",
+            "AI Message": "={{ $('Code in JavaScript').item.json.message }}",
+            "Time": "={{ $now }}",
+            "Status": "={{ $json.Status }}",
+            "Reason": "={{ $json.Reason }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Username",
+              "displayName": "Username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bio",
+              "displayName": "Bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Followers",
+              "displayName": "Followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Message",
+              "displayName": "AI Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1408,
+        -320
+      ],
+      "id": "a3235a71-05a2-4803-8b35-16cf4457852d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5GcvfGqf4lW2v8ka",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1MDcTbAvVWVaWZNYJWABFSlXeKSanJwU_SYlH3LStPdk",
+          "mode": "list",
+          "cachedResultName": "Rejected leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MDcTbAvVWVaWZNYJWABFSlXeKSanJwU_SYlH3LStPdk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MDcTbAvVWVaWZNYJWABFSlXeKSanJwU_SYlH3LStPdk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Username": "={{ $('Edit Fields').item.json.body.username }}",
+            "bio": "={{ $('Edit Fields').item.json.body.bio }}",
+            "Followers": "={{ $('Edit Fields').item.json.body.followers }}",
+            "Status": "Rejected",
+            "Reason": "low_followers",
+            "AI_message": "Not generated",
+            "Time": "={{ $now }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Username",
+              "displayName": "Username",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bio",
+              "displayName": "bio",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Followers",
+              "displayName": "Followers",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reason",
+              "displayName": "Reason",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI_message",
+              "displayName": "AI_message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Time",
+              "displayName": "Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        832,
+        96
+      ],
+      "id": "16bc4224-e631-42a0-b3a0-733f537e314b",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "5GcvfGqf4lW2v8ka",
+          "name": "Google Sheets OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"status\": \"rejected\",\n  \"reason\": \"Lead does not meet criteria\",\n  \"details\": {\n    \"followers\": \"{{ $json.Followers }}\",\n    \"username\": \"{{ $json.Username }}\"\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1040,
+        96
+      ],
+      "id": "f54c468f-a014-43fe-931e-0115c5c3f9af",
+      "name": "Respond to Webhook1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "ffcf495d-7286-4137-83c8-7161584c053e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6a68c17f855569ec89066febdea923cd3bed891df46c0c1d5689cfe5fa1e5bd6"
+  },
+  "id": "4it6CUEVhaNwXElm",
+  "tags": []
+}
